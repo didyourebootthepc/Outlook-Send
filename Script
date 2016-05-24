@@ -1,0 +1,36 @@
+set service = GetObject ("winmgmts:")
+
+for each Process in Service.InstancesOf ("Win32_Process")
+    If Process.Name = "outlook.exe"(
+        goto "send"
+        ) else (
+         goto "Open"
+         )
+    End If
+Open:
+    Dim objShell
+    Set objShell = WScript.CreateObject( "WScript.Shell" )
+    objShell.Run("""C:\Program Files (x86)\Microsoft Office\Office16\OUTLOOK.EXE""")
+    Set objShell = Nothing
+    GOTO send
+send:
+    wscript.Set objMessage = CreateObject("CDO.Message")
+        objMessage.Subject = "Sign in- please reply!"
+        objMessage.Sender = "test@gmail.com"
+        objMessage.From = "test@gmail.com"
+        objMessage.To = "test@gmail.com"
+        objMessage.TextBody = Test Body Email
+        '==This section provides the configuration information for the remote SMTP server.
+        '==Normally you will only change the server name or IP.
+        objMessage.Configuration.Fields.Item _
+        ("http://schemas.microsoft.com/cdo/configuration/sendusing") = 2
+        'Name or IP of Remote SMTP Server
+        objMessage.Configuration.Fields.Item _
+        ("http://schemas.microsoft.com/cdo/configuration/smtpserver") = "smtp.gmail.com"
+        'Server port (typically 25)
+        objMessage.Configuration.Fields.Item _
+        ("http://schemas.microsoft.com/cdo/configuration/smtpserverport") = 25
+        objMessage.Configuration.Fields.Update
+        '==End remote SMTP server configuration section==
+        objMessage.Send
+        exit
